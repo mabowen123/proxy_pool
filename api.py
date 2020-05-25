@@ -6,12 +6,18 @@ import json
 class api:
     def __init__(self):
         self.page = 10
+        self.params = [
+            {"app_id": 243367, "sign": "cd86a92468a94ea3a28421f291876d51"},
+            {"app_id": 243246, "sign": "da16d98a4db94f7d886a0e2d536142cb"},
+        ]
 
     def run(self, url):
         print(threading.current_thread().getName(), "启动")
+        key = 1
         count = 1
         while count <= self.page:
-            html = base().get("{}&page={}".format(url, count))
+            html = base().get("{}?showapi_appid={}&showapi_sign={}&page={}".format(url, self.params[key]['app_id'],
+                                                                                   self.params[key]['sign'], count))
             count += 1
             if html == False:
                 continue

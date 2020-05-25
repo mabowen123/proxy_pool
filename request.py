@@ -37,7 +37,8 @@ class base:
     @property
     def random_headers(self):
         return {
-            'User-Agent': self.ua.random
+            'User-Agent': self.ua.random,
+            'Connection': 'close'
         }
 
     def sleep(self, double_int=0):
@@ -47,14 +48,20 @@ class base:
 
         time.sleep(second)
 
-    def get(self, url):
+    def get(self, url, use_proxy=True):
         try:
             print("{}请求开始".format(url))
-            response = requests.get(url, headers=self.random_headers, proxies=self.random_proxy, timeout=10)
+            proxy = {}
+            if use_proxy:
+                proxy = self.random_proxy
+            requests.Session().keep_alive = False
+            response = requests.get(url, headers=self.random_headers, proxies=proxy, verify=False, timeout=10)
             if response.status_code == 200:
                 self.sleep()
                 return response.text
             else:
+                if use_proxy:
+                    self.proxy.remove(proxy['http'])
                 self.sleep(randint(10, 60))
                 return False
         except Exception as e:
@@ -65,14 +72,19 @@ class base:
         print(threading.current_thread().getName(), '开始')
         prefix = prefix.lower()
         url = '{}://whois.pconline.com.cn/ipJson.jsp?json=true'.format(prefix)
-        try:
-            response = requests.get(url, headers=self.random_headers, proxies={
-                prefix: ip
-            }, timeout=10)
-            if response.status_code == 200 and json.loads(response.text)['regionCode'] == '0':
-                key = "ip:{}:{}".format(prefix, hashlib.md5(ip.encode(encoding='UTF-8')).hexdigest())
-                r().set(key, ip)
-                self.proxy.append(ip)
-        except Exception as e:
-            print("{}请求错误,{}".format(url, e))
-            pass
+        retries = 0
+        max_retries = 3
+        while retries < max_retries:
+            try:
+                requests.Session().keep_alive = False
+                response = requests.get(url, headers=self.random_headers, proxies={
+                    prefix: ip
+                }, verify=False, timeout=60)
+                if response.status_code == 200 and json.loads(response.text)['regionCode'] == '0':
+                    key = "ip:{}:{}".format(prefix, hashlib.md5(ip.encode(encoding='UTF-8')).hexdigest())
+                    r().set(key, ip)
+                    self.proxy.append(ip)
+            except Exception as e:
+                retries += 1
+                if retries == max_retries:
+                    print("ip查询请求{}次错误,{}".format(retries, e))
