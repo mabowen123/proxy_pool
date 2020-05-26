@@ -17,6 +17,7 @@ class base:
             self.proxy = r().get("ip*")
             self.ua = UserAgent(verify_ssl=False)
             self._first = True
+            self.lock = threading.Lock()
 
     def __new__(cls, *args, **kwargs):
         if cls._instance == None:
@@ -54,8 +55,7 @@ class base:
             proxy = {}
             if use_proxy:
                 proxy = self.random_proxy
-            requests.Session().keep_alive = False
-            response = requests.get(url, headers=self.random_headers, proxies=proxy, verify=False, timeout=10)
+            response = requests.get(url, headers=self.random_headers, proxies=proxy, verify=False, timeout=(60, 120))
             if response.status_code == 200:
                 self.sleep()
                 return response.text
@@ -65,7 +65,7 @@ class base:
                 self.sleep(randint(10, 60))
                 return False
         except Exception as e:
-            print("{}请求错误,{}".format(url, e))
+            self.sleep(randint(10, 60))
             return False
 
     def ip_set(self, ip, prefix='http'):
@@ -74,6 +74,7 @@ class base:
         url = '{}://whois.pconline.com.cn/ipJson.jsp?json=true'.format(prefix)
         retries = 0
         max_retries = 3
+        self.lock.acquire()
         while retries < max_retries:
             try:
                 requests.Session().keep_alive = False
@@ -84,7 +85,11 @@ class base:
                     key = "ip:{}:{}".format(prefix, hashlib.md5(ip.encode(encoding='UTF-8')).hexdigest())
                     r().set(key, ip)
                     self.proxy.append(ip)
+                    break
             except Exception as e:
                 retries += 1
+                self.sleep()
                 if retries == max_retries:
                     print("ip查询请求{}次错误,{}".format(retries, e))
+
+        self.lock.release()

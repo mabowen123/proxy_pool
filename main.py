@@ -10,8 +10,8 @@ class main:
         base()
         self.thread_pool = []
         self.urls = {
-            "kd_intr": "https://www.kuaidaili.com/free/intr/",
-            "kd_inha": "https://www.kuaidaili.com/free/inha/",
+            "kd_intr": "http://www.kuaidaili.com/free/intr/",
+            "kd_inha": "http://www.kuaidaili.com/free/inha/",
             'xc_http': 'http://www.xicidaili.com/wt/',
             'xc_https': 'http://www.xicidaili.com/wn/',
             'route_showapi': "http://route.showapi.com/22-1"

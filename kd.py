@@ -10,6 +10,7 @@ class kd:
         self.page = 100
 
     def run(self, url):
+        print(threading.current_thread().getName(), "启动")
         count = 1
         while count <= self.page:
             html = base().get("{}{}".format(url, count))
@@ -29,5 +30,5 @@ class kd:
                 if (now - time).days > 3:
                     continue
                 thread = threading.Thread(target=base().ip_set, args=["{}:{}".format(ip, port), key, ])
-                thread.name = '线程IP查询:{}:{}'.format(ip, port)
+                thread.name = '线程kdIP查询:{}:{}'.format(ip, port)
                 thread.start()

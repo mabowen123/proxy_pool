@@ -5,7 +5,7 @@ import json
 
 class api:
     def __init__(self):
-        self.page = 10
+        self.page = 1
         self.params = [
             {"app_id": 243367, "sign": "cd86a92468a94ea3a28421f291876d51"},
             {"app_id": 243246, "sign": "da16d98a4db94f7d886a0e2d536142cb"},
@@ -28,5 +28,5 @@ class api:
             if json_str['showapi_res_code'] == 0 and body['ret_code'] == 0:
                 for item in body['pagebean']['contentlist']:
                     thread = threading.Thread(target=base().ip_set, args=["{}:{}".format(item['ip'], item['port']), ])
-                    thread.name = '线程IP查询:{}:{}'.format(item['ip'], item['port'])
+                    thread.name = '线程apiIP查询:{}:{}'.format(item['ip'], item['port'])
                     thread.start()

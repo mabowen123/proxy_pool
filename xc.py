@@ -29,5 +29,5 @@ class xc:
                 if (now - time).days > 3:
                     continue
                 thread = threading.Thread(target=base().ip_set, args=["{}:{}".format(ip, port), key, ])
-                thread.name = '线程IP查询:{}:{}'.format(ip, port)
+                thread.name = '线程xcIP查询:{}:{}'.format(ip, port)
                 thread.start()
